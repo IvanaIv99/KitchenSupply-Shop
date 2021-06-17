@@ -3,6 +3,7 @@ using Shop.Application.Commands;
 using Shop.Application.DataTransfer;
 using Shop.Application.Email;
 using Shop.DataAccess;
+using Shop.Domain;
 using Shop.Implementation.Validators;
 using System;
 using System.Collections.Generic;
@@ -31,22 +32,41 @@ namespace Shop.Implementation.Commands
         {
             _validator.ValidateAndThrow(request);
 
-            _context.Users.Add(new Domain.User
-            {
-                FirstName = request.FirstName,
-                LastName = request.LastName,
-                Email = request.Email,
-                Pass = request.Pass
-            });
 
-            _context.SaveChanges();
+                using (var dbContextTransaction = _context.Database.BeginTransaction())
+                {
+                    var user = new User
+                    {
+                        FirstName = request.FirstName,
+                        LastName = request.LastName,
+                        Email = request.Email,
+                        Pass = request.Pass,
+                        RoleId = 1
+                    };
 
-            _sender.Send(new SendEmailDto
-            {
-                Content = "<h1>Successfully registration!</h1>",
-                SendTo = request.Email,
-                Subject = "KitchenSupplyShop registration"
-            });
+                    _context.Users.Add(user);
+                    _context.SaveChanges();
+
+                    var authUseCases = new List<int> { 20,25,4,17,16,26 };
+                    foreach (var useCase in authUseCases)
+                    {
+                        var useCaseRow = new UserUseCase
+                        {
+                            UserId = user.Id,
+                            UseCaseId = useCase
+                        };
+                        _context.UserUseCases.Add(useCaseRow);
+                    }
+                    _context.SaveChanges();
+                    dbContextTransaction.Commit();
+                }
+
+                _sender.Send(new SendEmailDto
+                {
+                    Content = "<h1>Successfully registration!</h1>",
+                    SendTo = request.Email,
+                    Subject = "KitchenSupplyShop registration"
+                });
         }
     }
 }

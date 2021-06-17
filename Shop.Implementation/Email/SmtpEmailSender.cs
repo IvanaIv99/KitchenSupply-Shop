@@ -18,10 +18,10 @@ namespace Shop.Implementation.Email
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("ivana.ivanovic.49.18@ict.edu.rs", "")
+                Credentials = new NetworkCredential("ivanovicivana1999@gmail.com", "iloveash99")
             };
 
-            var message = new MailMessage("ivana.ivanovic.49.18@ict.edu.rs", dto.SendTo);
+            var message = new MailMessage("ivanovicivana1999@gmail.com", dto.SendTo);
             message.Subject = dto.Subject;
             message.Body = dto.Content;
             message.IsBodyHtml = true;
